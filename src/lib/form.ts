@@ -1,10 +1,10 @@
-export default function form(form_element: HTMLFormElement) {
+export default function form(formElement: HTMLFormElement) {
   // Here is where you could put the full URL to any server that should
   // receive the form data.
   const serverPrefix = "";
 
   // @ts-ignore
-  form_element.setAttribute("novalidate", true); // TODO: true?
+  formElement.setAttribute("novalidate", true); // TODO: true?
 
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
@@ -52,7 +52,7 @@ export default function form(form_element: HTMLFormElement) {
       );
 
       if (ok) {
-        form_element.reset();
+        formElement.reset();
       }
     } catch (error: any) {
       target.dispatchEvent(
@@ -64,5 +64,5 @@ export default function form(form_element: HTMLFormElement) {
     }
   }
 
-  form_element.addEventListener("submit", handleSubmit);
+  formElement.addEventListener("submit", handleSubmit);
 }
