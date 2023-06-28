@@ -1,31 +1,63 @@
-export default function form(form_element) {
-    form_element.setAttribute('novalidate', true);
-  
-    async function handle_submit(event) {
-      event.preventDefault();
-  
-      function validate() {
-        // https://css-tricks.com/form-validation-part-2-constraint-validation-api-javascript/
-        return true;
-      }
-  
-      const is_valid = validate();
-  
-      if (!is_valid) return;
+export default function form(form_element: HTMLFormElement) {
+  // @ts-ignore
+  form_element.setAttribute("novalidate", true); // TODO: true?
 
-      const formData = new FormData(event.target);
-  
-      const response = await fetch(event.target.getAttribute('action'), {
-        method: event.target.getAttribute('method') || 'POST',
-        body: formData
-      });
+  async function handleSubmit(event: SubmitEvent) {
+    event.preventDefault();
+
+    const target = event.target as HTMLFormElement;
+
+    if (!event || !target) {
+      console.error("Form error: No event or target");
+      return;
+    }
+
+    function validate() {
+      // https://css-tricks.com/form-validation-part-2-constraint-validation-api-javascript/
+      // Add your own validation logic here
+      return true;
+    }
+
+    const is_valid = validate();
+
+    if (!is_valid) return;
+
+    const formData = new FormData(target);
+
+    try {
+      const response = await fetch(
+        target.getAttribute("action") ||
+          (window ? window.location.pathname : "/"),
+        {
+          method: target.getAttribute("method") || "POST",
+          body: formData,
+        }
+      );
 
       const json = await response.json();
-  
-      event.target.dispatchEvent(
-        new CustomEvent('form-response', { bubbles: true, detail: json })
+
+      const { ok } = response;
+      const { message = undefined } = json;
+
+      target.dispatchEvent(
+        new CustomEvent("form-response", {
+          bubbles: true,
+          detail: { ...json, ok, error: message },
+        })
+      );
+
+      if(ok) {
+        form_element.reset();
+      }
+    } catch (error: any) {
+      target.dispatchEvent(
+        new CustomEvent("form-response", {
+          bubbles: true,
+          detail: { ok: false, error: error?.message || 'Unknown error'  },
+        })
       );
     }
-  
-    form_element.addEventListener('submit', handle_submit);
   }
+
+  form_element.addEventListener("submit", handleSubmit);
+}
