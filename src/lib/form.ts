@@ -1,4 +1,8 @@
 export default function form(form_element: HTMLFormElement) {
+  // Here is where you could put the full URL to any server that should
+  // receive the form data.
+  const serverPrefix = "";
+
   // @ts-ignore
   form_element.setAttribute("novalidate", true); // TODO: true?
 
@@ -26,8 +30,9 @@ export default function form(form_element: HTMLFormElement) {
 
     try {
       const response = await fetch(
-        target.getAttribute("action") ||
-          (window ? window.location.pathname : "/"),
+        serverPrefix +
+          (target.getAttribute("action") ||
+            (window ? window.location.pathname : "/")),
         {
           method: target.getAttribute("method") || "POST",
           body: formData,
@@ -46,14 +51,14 @@ export default function form(form_element: HTMLFormElement) {
         })
       );
 
-      if(ok) {
+      if (ok) {
         form_element.reset();
       }
     } catch (error: any) {
       target.dispatchEvent(
         new CustomEvent("form-response", {
           bubbles: true,
-          detail: { ok: false, error: error?.message || 'Unknown error'  },
+          detail: { ok: false, error: error?.message || "Unknown error" },
         })
       );
     }

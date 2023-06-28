@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
-export const POST = ((event: any) => {
+export const POST = (async (event: any) => {
   const body = await event.request.formData();
 
   const name = body.get("name");
