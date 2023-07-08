@@ -1,14 +1,19 @@
 export default function form(formElement: HTMLFormElement) {
-  // Here is where you could put the full URL to any server that should
-  // receive the form data.
+  // This triggers our function when the form is submitted
+  // TODO: Maybe needs to be at end or define the handlesubmit separately
+  formElement.addEventListener("submit", handleSubmit);
+
+  // Here is where you could put the full URL to any server that should receive the form data.
   const serverPrefix = "";
 
   // @ts-ignore
-  formElement.setAttribute("novalidate", true); // TODO: true?
-
+  formElement.setAttribute("novalidate", true); 
+  
   async function handleSubmit(event: SubmitEvent) {
+    // Prevent the default behavior of sending the form data to the URL in the action attribute
     event.preventDefault();
 
+    // Get a reference to the Form HTML element
     const target = event.target as HTMLFormElement;
 
     if (!event || !target) {
@@ -24,10 +29,13 @@ export default function form(formElement: HTMLFormElement) {
 
     const is_valid = validate();
 
+    // TODO: needs to be validated
     if (!is_valid) return;
 
+    // Assemble a FormData element with all the fields in our form
     const formData = new FormData(target);
 
+    // Send the form data to the server
     try {
       const response = await fetch(
         serverPrefix +
@@ -39,11 +47,13 @@ export default function form(formElement: HTMLFormElement) {
         }
       );
 
+      // Handle the response
       const json = await response.json();
 
       const { ok } = response;
       const { message = undefined } = json;
 
+      // Trigger our form response callback
       target.dispatchEvent(
         new CustomEvent("form-response", {
           bubbles: true,
@@ -63,6 +73,4 @@ export default function form(formElement: HTMLFormElement) {
       );
     }
   }
-
-  formElement.addEventListener("submit", handleSubmit);
 }
